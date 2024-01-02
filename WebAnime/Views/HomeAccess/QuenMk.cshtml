@@ -1,0 +1,25 @@
+﻿@model TbNguoiDung
+@{
+    ViewData["Title"] = "QuenMk";
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="login__form">
+            <h3>Nhập email tài khoản</h3>
+            <p style="color:red">@ViewBag.error</p>
+            @using (Html.BeginForm("QuenMk", "HomeAccess", FormMethod.Post))
+            {
+                <div class="input__item">
+                    @Html.TextBox("em", null, new { @class = "form-control form-control-lg", placeholder = "Email Address", required = "required", autofocus = "autofocus", type = "email", pattern = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$" })
+                    <span class="icon_mail"></span>
+                </div>
+                <button type="submit" class="site-btn">Xác Nhận</button>
+            }
+        </div>
+    </div>
+</div>
+<br />
+<br />
+<br />

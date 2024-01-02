@@ -1,0 +1,66 @@
+﻿
+@{
+    ViewData["Title"] = "OurBlog";
+    Layout = "~/Views/Shared/_LayoutOurBlog.cshtml";
+}
+
+@model WebAnime.Models.ViewModel.OurBlogViewModel
+@{
+    ViewData["Title"] = "OurBlog";
+    Layout = "~/Views/Shared/_LayoutOurBlog.cshtml";
+}
+@{
+    var date = Model.ngaydang;
+    var date1 = date.ToString().Substring(0, 10);
+}
+<section class="blog-details spad">
+    <div class="container">
+        <div class="row d-flex justify-content-center">
+            <div class="col-lg-8">
+                <div class="blog__details__title">
+                    <h6>
+                        @foreach (var theLoaiBlog in Model.theLoaiBlogs)
+                        {
+                            <a asp-action="AnimeToTheLoai" asp-controller="home" asp-route-theloai="@theLoaiBlog.theloai">@theLoaiBlog.theloai </a>
+                        }
+                        <span>- @date1</span>
+                    </h6>
+                    <h2>@Model.TenBlog</h2>
+                </div>
+            </div>
+            <div class="col-lg-12">
+                <div class="blog__details__pic">
+                    <img src="../Layout/img/blog/@Model.AnhBlog" alt="">
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="blog__details__content">
+                    <div class="blog__details__text">
+                        <p>
+                            @Model.ThongTinBlog
+                        </p>
+                    </div>
+                    @foreach (var i in Model.animeBlogs)
+                    {
+                        <div class="blog__details__item__text">
+                            <h4><a asp-action="ChiTietAnime" asp-controller="Home" asp-route-ma="@i.MaAnine">@i.Anime</a></h4>
+                            <h4>Trailer</h4>
+                            <div class="anime__video__player">
+                                <video id="player" playsinline controls data-poster="../Layout/img/anime/@i.Anh">
+                                    <source src="@Url.Content("../Layout/img/blog/Trailer/"+i.Trailer)" type="video/mp4" />
+                                    <!-- Captions are optional -->
+                                    <track kind="captions" label="English captions" src="#" srclang="en" default />
+                                </video>
+                            </div>
+                            <p>
+                                @i.ThongTin
+                            </p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+

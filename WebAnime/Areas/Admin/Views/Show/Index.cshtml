@@ -1,0 +1,55 @@
+﻿@using WebAnime.Areas.Admin.Models
+@using static WebAnime.Areas.Admin.Controllers.ShowController;
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model MyViewModel
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+<div class="row">
+    <div class="col-sm-8">
+        <div class="card">
+            <div class="card-header">
+                Doanh Thu
+            </div>
+            <div class="card-body">
+                @using (Html.BeginForm("Index", "Show", FormMethod.Post))
+                {
+                    <div class="form-group">
+                        <label>Năm:</label>
+                        @Html.DropDownList("year", ViewBag.Yearss as SelectList, new { @class = "form-control", @onchange = "submit()" })
+                    </div>
+                }
+                <canvas class="my-3" style="height: 100px;" id="bardt"></canvas>
+                <div>
+                    <label>Tổng tiền: <span>@Model.DoanhThu</span></label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var ctx = document.getElementById('bardt');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: @Html.Raw(Json.Serialize(Model.TDoanhThus.Select(x => x.Labels))),
+            datasets: [{
+                label: 'Tổng tiền',
+                data: @Html.Raw(Json.Serialize(Model.TDoanhThus.Select(x => x.Data))),
+                backgroundColor: 'rgba(6,128,250)'
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+</script>

@@ -1,0 +1,41 @@
+﻿@model WebAnime.Models.TbVip
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "CreateLoaiVip";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h1>CreateLoaiVip</h1>
+
+<h4>TbVip</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post" asp-action="CreateLoaiVip">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="LoaiVip" class="control-label"></label>
+                <input asp-for="LoaiVip" class="form-control" />
+                <span asp-validation-for="LoaiVip" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ThoiGianSd" class="control-label"></label>
+                <input asp-for="ThoiGianSd" class="form-control" />
+                <span asp-validation-for="ThoiGianSd" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Gia" class="control-label"></label>
+                <input asp-for="Gia" class="form-control" />
+                <span asp-validation-for="Gia" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

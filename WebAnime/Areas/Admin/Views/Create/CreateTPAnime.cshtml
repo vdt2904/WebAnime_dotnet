@@ -1,0 +1,53 @@
+﻿@model WebAnime.Models.TbTapPhim
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "CreateTPAnime";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h1>CreateTPAnime</h1>
+
+<h4>TbTapPhim</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post" asp-action="CreateTPAnime" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="MaTp" class="control-label"></label>
+                <input asp-for="MaTp" class="form-control" />
+                <span asp-validation-for="MaTp" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MaAnime" class="control-label"></label>
+                <select asp-for="MaAnime" class ="form-control" asp-items="ViewBag.MaAnime"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Tap" class="control-label"></label>
+                <input asp-for="Tap" class="form-control" />
+                <span asp-validation-for="Tap" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NgayPhatSong" class="control-label"></label>
+                <input asp-for="NgayPhatSong" class="form-control" />
+                <span asp-validation-for="NgayPhatSong" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Video" class="control-label"></label>
+                <input type="file" id="video" name="video" class="form-control-file" />
+            </div>
+            <div class="form-group">
+                <label asp-for="AnhVideo" class="control-label"></label>
+                <input type="file" id="file" name="file" accept="image/*" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

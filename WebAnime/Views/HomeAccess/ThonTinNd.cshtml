@@ -1,0 +1,143 @@
+﻿@model WebAnime.Models.TbNguoiDung
+
+@{
+    ViewData["Title"] = "ThonTinNd";
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+}
+
+<style>
+    .header1 {
+        overflow: hidden;
+        background-color: #f1f1f1;
+        padding: 20px 10px;
+    }
+
+        .header1 a {
+            float: right;
+        }
+
+        .header1 h2 {
+            float: left;
+        }
+</style>
+
+<div class="header1">
+    <h2 style="color:red">Thông tin của bạn</h2>
+    <a asp-action="dangxuat" asp-controller="homeaccess">Đăng xuất</a>
+</div>
+
+<hr />
+<div class="row mx-auto">
+    <div class="col-md-4 mx-auto text-center">
+        <form method="post" asp-action="ThonTinNd">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="MaNd" id="mand" name="mand" />
+            <input type="hidden" asp-for="Email" />
+            <input type="hidden" asp-for="LoaiNd" />
+            <input type="hidden" asp-for="Pasword" />
+            <div class="form-group">
+                <label style="color:red">Tên người dùng</label>
+                <input asp-for="TenNguoiDung" class="form-control" />
+                <span asp-validation-for="TenNguoiDung" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label style="color:red">Email</label>
+                <input class="form-control" readonly value="@string.Format("{0:******}***{1}", Model.Email.Substring(0, 3), Model.Email.Substring(Model.Email.IndexOf('@')))" />
+            </div>
+            <div class="form-group">
+                <label style="color:red">Số điện thoại</label>
+                <input asp-for="Sdt" class="form-control" />
+                <span asp-validation-for="Sdt" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label style="color:red">Mật khẩu</label>
+                <div class="input-group">
+                    <input class="form-control" readonly value="********" />
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-primary" onclick="showChangePasswordForm()">Đổi mật khẩu</button>
+                    </div>
+                </div>
+            </div>
+            @{
+                string a = "";
+                if (Model.LoaiNd == 0)
+                {
+                    a = "Thường";
+                }
+                else
+                {
+                    a = "Vip";
+                }
+            }
+            <div class="form-group">
+                <label style="color:red">Loại Tài Khoản</label>
+                <div class="input-group">
+                <input value="@a" class="form-control" readonly />
+                <a href="@Url.Action("ThanhToanp", "ThanhToan")" class="btn btn-primary">Mua Vip</a>
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+<style>
+    .center {
+        display: none;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+</style>
+<div id="change-password-form" class="center col-md-4 mx-auto text-center">
+    <h3 style="color:red">Đổi mật khẩu</h3>
+    <form>
+        <div class="form-group">
+            <label for="current-password" style="color:red">Mật khẩu hiện tại:</label>
+            <input type="password" class="form-control" id="current-password" name="current-password">
+        </div>
+        <div class="form-group">
+            <label for="new-password" style="color:red">Mật khẩu mới:</label>
+            <input type="password" class="form-control" id="new-password" name="new-password">
+        </div>
+        <div class="form-group">
+            <label for="confirm-password" style="color:red">Nhập lại mật khẩu mới:</label>
+            <input type="password" class="form-control" id="confirm-password" name="confirm-password">
+        </div>
+        <button type="button" class="btn btn-primary" onclick="doimk()">Xác nhận</button>
+        <button type="button" class="btn btn-default" onclick="cancelChangePassword()">Hủy</button>
+    </form>
+</div>
+<script>
+    function showChangePasswordForm() {
+        document.getElementById("change-password-form").style.display = "block";
+    }
+
+    function cancelChangePassword() {
+        document.getElementById("change-password-form").style.display = "none";
+    }
+</script>
+<script type="text/javascript">
+    function doimk() {
+        var ul = 'http://localhost:5153/api/ApiTopView?mand=' + $('#mand').val()+'&&mkc='+ $('#current-password').val() + '&&mkm=' + $('#new-password').val() + '&&nmkm=' + $('#confirm-password').val();
+        $.ajax({
+            url: ul,
+            method: 'PUT',
+            contentType: 'json',
+            dataType: 'text',
+            success: function (response) {
+                alert(response);
+                cancelChangePassword();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                alert("Cập nhật không thành công: " + xhr.responseText);
+            }
+        });
+    }
+
+</script>
+<br></br>
+<br></br>
+<br></br>
+<br></br>

@@ -1,0 +1,256 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using WebAnime.Models.ViewModel;
+@using X.PagedList.Mvc.Core;
+@model X.PagedList.IPagedList<TbAnimeViewModel>
+@{
+    ViewData["Title"] = "Trending";
+    Layout = "~/Views/Shared/_LayoutWebAnime.cshtml";
+}
+@{
+    QlAnimeContext db = new QlAnimeContext();
+    var result = (from a in db.TbAnimes
+                  join tp in db.TbTapPhims on a.MaAnime equals tp.MaAnime
+                  join c in db.TbComments on tp.MaTp equals c.MaTp
+                  group new { a, tp, c } by new { a.Anime, a.Anh, a.MaAnime } into g
+                  orderby g.Max(x => x.c.NgayComent) descending
+                  select new
+                  {
+                      Anime = g.Key.Anime,
+                      Anh = g.Key.Anh,
+                      MaAnime = g.Key.MaAnime,
+                  }).Take(4).ToList();
+
+}
+
+<div class="trending__product">
+    <div class="row">
+        <div class="col-lg-8 col-md-8 col-sm-8">
+            <div class="section-title">
+                <h4>Trending Now</h4>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            var bv = db.TbAnimes.Find(item.MaAnime);
+            <div class="col-lg-4 col-md-6 col-sm-6">
+                <div class="product__item">
+                    <div class="product__item__pic set-bg" data-setbg="@Url.Content("../Layout/img/anime/"+item.Anh)">
+                        <div class="ep">
+                            @if (item.TapHienTai.HasValue)
+                            {
+                                @item.TapHienTai
+                            }
+                            else
+                            {
+                                <span>??</span>
+                            }/@if (item.TongSoTap.HasValue)
+                            {
+                                @item.TongSoTap
+                            }
+                            else
+                            {
+                                <span>??</span>
+                            }
+                        </div>
+                         @if (bv.Lp.HasValue && bv.Lp.Value)
+                        {
+                            <div class="vip-img" style="position: absolute; top: 0; right: 0; width: 15%; transform: translate(-100%, 0);">
+                                <img src="../Layout/img/vip.jfif" alt="VIP">
+                            </div>
+
+                        }
+                        <div class="comment"><i class="fa fa-comments"></i> @item.TongComment</div>
+                        <div class="view"><i class="fa fa-eye"></i> @item.TongView</div>
+                    </div>
+                    <div class="product__item__text">
+                        <h5><a asp-action="ChiTietAnime" asp-controller="Home" asp-route-ma="@item.MaAnime">@item.Anime</a></h5>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+</div>
+
+
+
+
+@section topView{
+    <div class="product__sidebar__view">
+        <div class="section-title">
+            <h5>Top Views</h5>
+        </div>
+        <ul class="filter__controls">
+            <li class="active" onclick="topviewday()">Day</li>
+            <li onclick="topviewweeks()">Week</li>
+            <li onclick="topviewmonths()">Month</li>
+            <li onclick="topviewyears()">Years</li>
+        </ul>
+        <div class="filter__gallery" id="idtopview">
+
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+    window.onload = function () {
+        topviewday();
+    };
+    function topviewday() {
+        $.ajax({
+            url: 'http://localhost:5153/api/topview',
+            method: 'GET',
+            contentType: 'json',
+            dataType: 'json',
+            error: function (response) {
+                console.log("error");
+            },
+            success: function (response) {
+                const len = response.length;
+                let table = '';
+                for (var i = len - 1; i >= 0; --i) {
+                    table = table + '<div class="product__sidebar__view__item set-bg" style="width: 360px; height: 190px; background-image: url(../Layout/img/anime/' + response[i].anh + ');" >';
+                    table = table + '<div class="ep">' + response[i].tap + '</div>';
+                    if (response[i].lp == true) {
+                        table = table + '<div class="vip-img" style="position: absolute; top: 0; right: 0; width: 10%; transform: translate(-100%, 0);"><img src = "../Layout/img/vip.jfif" alt = "VIP" ></div>'
+                    }
+                    table = table + '<h5><a href="/Home/ChiTietAnime?ma=' + response[i].maAnime + '">' + response[i].anime + '</a></h5>'
+                    table = table + '</div>'
+                }
+                document.getElementById('idtopview').innerHTML = table;
+            },
+            fail: function (response) {
+                console.log("fail");
+            }
+        })
+    }
+    function topviewweeks() {
+        $.ajax({
+            url: 'http://localhost:5153/api/topview/topviewweek',
+            method: 'GET',
+            contentType: 'json',
+            dataType: 'json',
+            error: function (response) {
+                console.log("error");
+            },
+            success: function (response) {
+                const len = response.length;
+                let table = '';
+                for (var i = 0; i < len; ++i) {
+                    table = table + '<div class="product__sidebar__view__item set-bg" style="width: 360px; height: 190px; background-image: url(../Layout/img/anime/' + response[i].anh + ');" >';
+                    table = table + '<div class="ep">' + response[i].tap + '</div>';
+                    if (response[i].lp == true) {
+                        table = table + '<div class="vip-img" style="position: absolute; top: 0; right: 0; width: 10%; transform: translate(-100%, 0);"><img src = "../Layout/img/vip.jfif" alt = "VIP" ></div>'
+                    }
+                    table = table + '<h5><a href="/Home/ChiTietAnime?ma=' + response[i].maAnime + '">' + response[i].anime + '</a></h5>'
+                    table = table + '</div>'
+                }
+                document.getElementById('idtopview').innerHTML = table;
+            },
+            fail: function (response) {
+                console.log("fail");
+            }
+        })
+    }
+    function topviewmonths() {
+        $.ajax({
+            url: 'http://localhost:5153/api/topview/topviewmonth',
+            method: 'GET',
+            contentType: 'json',
+            dataType: 'json',
+            error: function (response) {
+                console.log("error");
+            },
+            success: function (response) {
+                const len = response.length;
+                let table = '';
+                for (var i = len - 1; i >= 0; --i) {
+                    table = table + '<div class="product__sidebar__view__item set-bg" style="width: 360px; height: 190px; background-image: url(../Layout/img/anime/' + response[i].anh + ');" >';
+                    table = table + '<div class="ep">' + response[i].tap + '</div>';
+                    if (response[i].lp == true) {
+                        table = table + '<div class="vip-img" style="position: absolute; top: 0; right: 0; width: 10%; transform: translate(-100%, 0);"><img src = "../Layout/img/vip.jfif" alt = "VIP" ></div>'
+                    }
+                    table = table + '<h5><a href="/Home/ChiTietAnime?ma=' + response[i].maAnime + '">' + response[i].anime + '</a></h5>'
+                    table = table + '</div>'
+                }
+                document.getElementById('idtopview').innerHTML = table;
+            },
+            fail: function (response) {
+                console.log("fail");
+            }
+        })
+    }
+    function topviewyears() {
+        $.ajax({
+            url: 'http://localhost:5153/api/topview/topviewyear',
+            method: 'GET',
+            contentType: 'json',
+            dataType: 'json',
+            error: function (response) {
+                console.log("error");
+            },
+            success: function (response) {
+                const len = response.length;
+                let table = '';
+                for (var i = 0; i < len; ++i) {
+                    table = table + '<div class="product__sidebar__view__item set-bg" style="width: 360px; height: 190px; background-image: url(../Layout/img/anime/' + response[i].anh + ');" >';
+                    table = table + '<div class="ep">' + response[i].tap + '</div>';
+                    if (response[i].lp == true) {
+                        table = table + '<div class="vip-img" style="position: absolute; top: 0; right: 0; width: 10%; transform: translate(-100%, 0);"><img src = "../Layout/img/vip.jfif" alt = "VIP" ></div>'
+                    }
+                    table = table + '<h5><a href="/Home/ChiTietAnime?ma=' + response[i].maAnime + '">' + response[i].anime + '</a></h5>'
+                    table = table + '</div>'
+                }
+                document.getElementById('idtopview').innerHTML = table;
+            },
+            fail: function (response) {
+                console.log("fail");
+            }
+        })
+    }
+
+</script>
+
+@section newComment{
+    <div class="product__sidebar__comment">
+        <div class="section-title">
+            <h5>New Comment</h5>
+        </div>
+        @foreach (var i in result)
+        {
+            var tviews = db.TbTapPhims.Where(x => x.MaAnime == i.MaAnime).Sum(x => x.Views);
+            var tls = (from tl in db.TbTheLoais
+                       join tlAnime in db.TbTlanimes on tl.MaTl equals tlAnime.MaTl
+                       where tlAnime.MaAnime == i.MaAnime
+                       orderby tl.TheLoai ascending
+                       select tl.TheLoai).ToList();
+            <div class="product__sidebar__comment__item">
+                <div class="product__sidebar__comment__item__pic">
+                    <img src="../Layout/img/anime/@i.Anh" alt="" style="width: 90px; height: 130px;">
+                </div>
+                <div class="product__sidebar__comment__item__text">
+                    <ul>
+                        @foreach (var j in tls)
+                        {
+                            <li><a asp-action="AnimeToTheLoai" asp-controller="home" asp-route-theloai="@j">@j</a></li>
+                        }
+                    </ul>
+                    <h5><a asp-action="ChiTietAnime" asp-controller="Home" asp-route-ma="@i.MaAnime">@i.Anime</a></h5>
+                    <span><i class="fa fa-eye"></i> @tviews</span>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@Html.PagedListPager(Model,page=>Url.Action("Trending",new {page=page}),new
+    X.PagedList.Web.Common.PagedListRenderOptions(){
+        LiElementClasses = new List<String> {"page-item"},
+        PageClasses = new List<String> {"page-link"}
+    }
+)
+
+

@@ -1,0 +1,63 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using WebAnime.Models;
+@using X.PagedList.Mvc.Core;
+@model X.PagedList.IPagedList<TbHoaDon>
+
+@{
+    ViewData["Title"] = "HoaDon";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h1>HoaDon</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Mã người dùng
+            </th>
+            <th>
+                Loại Vip
+            </th>
+            <th>
+                Ngày mua
+            </th>
+            <th>
+                Ngày hết hạn
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MaNd)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LoaiVip)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NgayMua)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NgayHetHan)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.SoHd">Edit</a> |
+                    <a asp-action="Delete" asp-route-id="@item.SoHd">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@Html.PagedListPager(Model,page=>Url.Action("HoaDon",new {page=page}),new
+    X.PagedList.Web.Common.PagedListRenderOptions(){
+        LiElementClasses = new List<String> {"page-item"},
+        PageClasses = new List<String> {"page-link"}
+    }
+)

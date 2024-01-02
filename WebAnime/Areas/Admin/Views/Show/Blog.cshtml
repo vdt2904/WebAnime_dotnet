@@ -1,0 +1,50 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using WebAnime.Models;
+@using X.PagedList.Mvc.Core;
+@model X.PagedList.IPagedList<TbBlog>
+@{
+    ViewData["Title"] = "Blog";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h1>Blog</h1>
+<p style="color:red">@TempData["Message"]</p>
+<p>
+    <a asp-action="CreateBlog" asp-controller="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Mã Anime
+            </th>
+            <th>
+                ID Blog
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MaAnime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Idblog)
+                </td>
+                <td>
+                    <a asp-controller="edit" asp-action="editBlog" asp-route-ma="@item.Id">Edit</a> |
+                    <a asp-action="deleteBlog" asp-controller="delete" asp-route-ma="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@Html.PagedListPager(Model,page=>Url.Action("Blog",new {page=page}),new
+    X.PagedList.Web.Common.PagedListRenderOptions(){
+        LiElementClasses = new List<String> {"page-item"},
+        PageClasses = new List<String> {"page-link"}
+    }
+)

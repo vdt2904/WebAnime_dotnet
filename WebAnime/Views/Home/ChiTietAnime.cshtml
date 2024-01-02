@@ -1,0 +1,396 @@
+﻿@using WebAnime.Models.ViewModel;
+@model WebAnime.Models.ViewModel.TbAnimeViewModel
+@{
+    ViewData["Title"] = "ChiTietAnime";
+    Layout = "~/Views/Shared/_LayoutAnimeDetail.cshtml";
+}
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    QlAnimeContext db = new QlAnimeContext();
+    var thongtin = db.TbAnimes.FirstOrDefault(x => x.MaAnime == Model.MaAnime);
+    string tt = thongtin.ThongTin;
+    string nps = thongtin.NgayPhatSong.ToString();
+    var hp = db.TbHangPhims.FirstOrDefault(x => x.MaHp == thongtin.MaHp);
+    var lp = db.TbLoaiPhims.FirstOrDefault(x => x.MaLp == thongtin.MaLp);
+    string thp = hp.TenHangPhim;
+    string tlp = lp.LoaiPhim;
+    var result = from tl in db.TbTheLoais
+                 join tla in db.TbTlanimes on tl.MaTl equals tla.MaTl
+                 join anime in db.TbAnimes on tla.MaAnime equals anime.MaAnime
+                 where tla.MaAnime == Model.MaAnime
+                 select tl.TheLoai;
+    string mnd = HttpContextAccessor.HttpContext.Session.GetString("DangNhap");
+    var bv = db.TbAnimes.Find(Model.MaAnime);
+}
+<input type="hidden" id="maa" value="@Model.MaAnime"></input>
+<input type="hidden" id="idmnd" value="@mnd" />
+<div class="anime__details__content">
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="anime__details__pic set-bg" data-setbg="@Url.Content("../Layout/img/anime/"+Model.Anh)">
+                @if (bv.Lp.HasValue && bv.Lp.Value)
+                {
+                    <div class="vip-img" style="position: absolute; top: 0; right: 0; width: 15%; transform: translate(-100%, 0);">
+                        <img src="../Layout/img/vip.jfif" alt="VIP">
+                    </div>
+
+                }
+                <div class="comment"><i class="fa fa-comments"></i> @Model.TongComment</div>
+                <div class="view"><i class="fa fa-eye"></i> @Model.TongView</div>
+            </div>
+        </div>
+        <div class="col-lg-9">
+            <div class="anime__details__text">
+                <div class="anime__details__title">
+                    <h3>@Model.Anime</h3>
+                </div>
+                <div id="idtbrate">
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+                    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+                </div>
+                <p>
+                    @tt
+                </p>
+                <div class="anime__details__widget">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6">
+                            <ul>
+                                <li><span>Type:</span> @tlp</li>
+                                <li><span>Studios:</span> @thp</li>
+                                <li><span>Date aired:</span> @nps</li>
+                                <li>
+                                    <span>Status:</span> @if (Model.TongSoTap == null || Model.TapHienTai < Model.TongSoTap)
+                                    {
+                                        <span>Airing</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Stopped broadcasting</span>
+                                    }
+                                </li>
+
+                            </ul>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <ul>
+                                <li>
+                                    <span>Genre:</span> @foreach (var i in result)
+                                    {
+                                        <a>@i </a>
+                                    }
+                                </li>
+                                <li><span>Duration:</span> 24 min/ep</li>
+                                <li><span>Quality:</span> HD</li>
+                                <li><span>Views:</span> @Model.TongView</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="anime__details__btn">                   
+                    <a asp-action="WatchAnime" asp-controller="home" asp-route-ma="@Model.MaAnime" asp-route-t="1" class="watch-btn">
+                        <span>Watch Now</span> <i class="fa fa-angle-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+@section Cmt{
+    <div class="col-lg-8 col-md-8">
+        <div class="anime__details__review">
+            <div class="section-title">
+                <h5>Reviews</h5>
+            </div>
+            <div>
+                <div id="allKH">
+                   
+                </div>
+                <div id="pagination_phong"></div>
+            </div>
+        </div>
+        <div class="anime__details__form">
+            <div class="section-title">
+                <h5>Your Comment</h5>
+            </div>
+            <form>
+                <select id="ddlRate" class="form-select  js-choice">
+                    <option value="5" selected="">★★★★★ (5/5)</option>
+                    <option value="4">★★★★☆ (4/5)</option>
+                    <option value="3">★★★☆☆ (3/5)</option>
+                    <option value="2">★★☆☆☆ (2/5)</option>
+                    <option value="1">★☆☆☆☆ (1/5)</option>
+                </select>
+                <textarea id="idrv" placeholder="Your Comment"></textarea>
+                <button type="button" onclick="reviews()"><i class="fa fa-location-arrow"></i> Review</button>
+            </form>
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        GetRW();
+        GetRateTb();
+    });
+    function GetRateTb() {
+        $.ajax({
+            url: 'http://localhost:5153/api/ApiRate/gettbrate?ma1=' + $('#maa').val(),
+            method: 'GET',
+            contentType: 'json',
+            dataType: 'json',
+            error: function (response) {
+
+            },
+            success: function (response) {
+                var tbr = response.tbRate;
+                var phanNguyen = Math.floor(tbr);
+                var phanDu = tbr % 1;
+                var tbr1 = 0;
+                if (tbr > 0 && tbr < 0.3) {
+                    tbr1 = phanNguyen;
+                }
+                else if (tbr >= 0.3 && tbr < 0.7) {
+                    tbr1 = phanNguyen + 0.5;
+                }
+                else if (tbr >= 7 && tbr < 1) {
+                    tbr1 = phanNguyen + 1;
+                } else {
+                    tbr1 = tbr;
+                }
+                let htmls = '';
+                htmls = htmls + '<div class="anime__details__rating" >';
+                htmls = htmls + '<div class="rating" >'
+                if (tbr1 % 1 == 0) {
+                    for (var i = 1; i <= 5; ++i) {
+                        if (i > tbr1) {
+                            htmls = htmls + '<a > <i class="fa fa-star-o" > </i></a >'
+                        }else{
+                            htmls = htmls + '<a  > <i class="fa fa-star" > </i></a >'
+                        }
+                    }
+                }else{
+                    for(var i = 1; i<=5 ;++i){
+                        if (i <= Math.floor(tbr1)){
+                            htmls = htmls + '<a > <i class="fa fa-star" > </i></a >'
+                        }
+                        else if(i >= Math.floor(tbr1)+2){
+                            htmls = htmls + '<a  > <i class="fa fa-star-o" > </i></a >'
+                        }
+                        else{
+                            htmls = htmls + '<a  > <i class="fa fa-star-half-o" > </i></a >'
+                        }
+                    }
+                }
+                htmls = htmls + '</div>';
+                htmls = htmls + '<span> ' + response.tongVote +' Votes </span>';
+                htmls = htmls + '</div>';
+                document.getElementById('idtbrate').innerHTML = htmls;
+            },
+            fail: function (response) {
+            }
+        });
+    }
+    function GetRW() {
+        $.ajax({
+            url: 'http://localhost:5153/api/ApiRate?ma=' + $('#maa').val(),
+            method: 'GET',
+            contentType: 'json',
+            dataType: 'json',
+            error: function (response) {
+
+            },
+            success: function (response) {
+                var ma = $('#maa').val();
+                var count = parseInt(response.totalCount);
+                const pageNumber = 1;
+                const pageSize = 5;
+                $.ajax({
+                    url: 'http://localhost:5153/api/ApiRate/getrwbypage?pageSize=' + pageSize + '&pageNumber=' + pageNumber + '&ma=' + ma,
+                    method: 'GET',
+                    contentType: 'json',
+                    dataType: 'json',
+                    error: function (response) {
+                        console.log("error");
+                    },
+                    success: function (response) {
+                        rendercmt(response);
+                        renderPagination(Math.ceil(count / pageSize), pageNumber, ma);
+                    },
+                    fail: function (response) {
+                        console.log("fail");
+                    }
+                });
+
+            },
+            fail: function (response) {
+            }
+        });
+    }
+    function renderPagination(totalPages, currentPage, ma) {
+        let pagination = '';
+        for (let i = 1; i <= totalPages; i++) {
+            pagination += `<button class="btn ${i === currentPage ? 'btn-primary' : 'btn-outline-primary'}" onclick="setPage(${i}, '${ma}')">${i}</button> `;
+
+        }
+        document.getElementById('pagination_phong').innerHTML = pagination;
+    }
+    function setPage(pageNumber, ma) {
+        const pageSize = 5;
+        console.log(pageNumber);
+        console.log(ma);
+        //      document.getElementById('page-number').innerHTML = pageNumber;
+        $.ajax({
+            url: 'http://localhost:5153/api/ApiRate/getrwbypage?pageSize=' + pageSize + '&pageNumber=' + pageNumber + '&ma=' + ma,
+            method: 'GET',
+            contentType: 'json',
+            dataType: 'json',
+            error: function (response) {
+                console.log("error");
+            },
+            success: function (response) {
+                rendercmt(response);
+            },
+            fail: function (response) {
+                console.log("fail");
+            }
+        });
+    }
+    function rendercmt(response) {
+        const len = response.items.length;
+        let table = '';
+        for (var i = 0; i < len; ++i) {
+            var date = new Date(response.items[i].ngayReview);
+            var now = new Date();
+            var date1 = date.toISOString().slice(0, 10);
+            var date2 = now.toISOString().slice(0, 10);
+            var diff = now.getTime() - date.getTime();
+            var diffMinutes = Math.floor(diff / (1000 * 60));
+            var diffDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+            var str = '';
+            var str1 = '';
+            if (diffMinutes < 60) {
+                if (diffMinutes === 0) {
+                    str = 'just now';
+                } else {
+                    str = diffMinutes + ' minutes ago';
+                }
+            } else if (date1 == date2) {
+                var hour = Math.floor(diff / (1000 * 60 * 60));
+                str = hour + ' hours ago';
+            } else if (diffDays <= 3) {
+                str = diffDays + ' days ago';
+            } else {
+                str = date1;
+            }
+            if (response.items[i].rate === 5) {
+                str1 = '★★★★★';
+            }
+            if (response.items[i].rate === 4) {
+                str1 = '★★★★☆';
+            }
+            if (response.items[i].rate === 3) {
+                str1 = '★★★☆☆';
+            }
+            if (response.items[i].rate === 2) {
+                str1 = '★★☆☆☆';
+            }
+            if (response.items[i].rate === 1) {
+                str1 = '★☆☆☆☆';
+            }
+
+            table += '<div class="anime__review__item">';
+            table += '<div class="anime__review__item__pic"><img src="../Layout/img/anime/th1.jfif" alt=""></div>';
+            table += '<div class="anime__review__item__text">';
+            table += '<h6>' + response.items[i].tenNguoiDung + ' - ' + '<span>' + str1 + '</span>' + ' - ' + '<span>' + str + '</span>' + '</h6>';
+            table += '<p>' + response.items[i].review + '</p>';
+            table += '</div>';
+            table += '</div>';
+        }
+        document.getElementById('allKH').innerHTML = table;
+    }
+    function reviews() {
+        var ul = 'http://localhost:5153/api/apirate/insertReview?mnd=' + $('#idmnd').val() + '&&ma=' + $('#maa').val() + '&&rv=' + $('#idrv').val() + '&&r=' + $('#ddlRate').val();
+        $.ajax({
+            url: ul,
+            method: 'POST',
+            contentType: 'json',
+            dataType: 'text',
+            success: function (response) {
+                GetRW();
+                GetRateTb();
+                $('#idrv').val('');
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                alert("Cập nhật không thành công: " + xhr.responseText);
+            }
+        });
+    }
+</script>
+
+
+@{
+    var result1 = db.TbAnimes
+            .Join(db.TbTapPhims, anime => anime.MaAnime, tapPhim => tapPhim.MaAnime, (anime, tapPhim) => new { anime, tapPhim })
+            .Join(db.TbTlanimes, a => a.anime.MaAnime, tl => tl.MaAnime, (a, tl) => new { a, tl })
+            .Join(db.TbTheLoais, al => al.tl.MaTl, theLoai => theLoai.MaTl, (al, theLoai) => new { al, theLoai })
+            .Where(joined => joined.theLoai.TheLoai == result.FirstOrDefault() && joined.al.tl.MaAnime != Model.MaAnime)
+            .GroupBy(joined => new
+            {
+                joined.al.a.anime.MaAnime,
+                joined.al.a.anime.Anime,
+                joined.al.a.anime.Anh,
+                joined.al.a.anime.TongSoTap
+            })
+            .Select(g => new TbAnimeViewModel
+                    {
+                        MaAnime = g.Key.MaAnime,
+                        Anime = g.Key.Anime,
+                        Anh = g.Key.Anh,
+                        TongSoTap = g.Key.TongSoTap,
+                        TapHienTai = g.OrderByDescending(x => x.al.a.tapPhim.NgayPhatSong)
+                                                              .ThenByDescending(x => x.al.a.tapPhim.Tap)
+                                                              .Select(x => x.al.a.tapPhim.Tap)
+                                                              .FirstOrDefault(),
+                        TongComment = g.Sum(x => x.al.a.tapPhim.Comments),
+                        TongView = g.Sum(x => x.al.a.tapPhim.Views)
+                    })
+            .OrderByDescending(x => x.TapHienTai)
+            .Take(4)
+            .ToList();
+}
+
+@section MightLike{
+    <div class="col-lg-4 col-md-4">
+        <div class="anime__details__sidebar">
+            <div class="section-title">
+                <h5>you might like...</h5>
+            </div>
+            @foreach (var i in result1)
+            {
+                <div class="product__sidebar__view__item set-bg" data-setbg="@Url.Content("../Layout/img/anime/"+i.Anh)">
+                    <div class="ep">
+                        @if (i.TapHienTai.HasValue)
+                        {
+                            @i.TapHienTai
+                        }
+                        else
+                        {
+                            <span>??</span>
+                        }/@if (i.TongSoTap.HasValue)
+                        {
+                            @i.TongSoTap
+                        }
+                        else
+                        {
+                            <span>??</span>
+                        }
+                    </div>
+                    <div class="view"><i class="fa fa-eye"></i> @i.TongView</div>
+                    <h5><a asp-action="ChiTietAnime" asp-controller="Home" asp-route-ma="@i.MaAnime">@i.Anime</a></h5>
+                </div>
+            }
+        </div>
+    </div>
+}

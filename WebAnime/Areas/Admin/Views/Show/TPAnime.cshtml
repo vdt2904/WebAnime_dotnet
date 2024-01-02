@@ -1,0 +1,68 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using WebAnime.Models;
+@using X.PagedList.Mvc.Core;
+@model X.PagedList.IPagedList<TbTapPhim>
+@{
+    ViewData["Title"] = "TPAnime";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h1>TPAnime</h1>
+<p style="color:red">@TempData["Message"]</p>
+<p>
+    <a asp-action="CreateTPAnime" asp-controller="Create">Thêm mới</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Mã Anime
+            </th>
+            <th>
+                Tập
+            </th>
+            <th>
+                Views
+            </th>
+            <th>
+                Comments
+            </th>
+            <th>
+                Ngày phát sóng
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MaAnime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Tap)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Views)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Comments)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NgayPhatSong)
+                </td>
+                <td>
+                    <a asp-controller="edit" asp-action="editTPAnime" asp-route-ma="@item.MaTp">Edit</a>
+                    <a asp-action="deleteTPAnime" asp-controller="delete" asp-route-ma="@item.MaTp">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@Html.PagedListPager(Model,page=>Url.Action("TPAnime",new {page=page}),new
+    X.PagedList.Web.Common.PagedListRenderOptions(){
+        LiElementClasses = new List<String> {"page-item"},
+        PageClasses = new List<String> {"page-link"}
+    }
+)

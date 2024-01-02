@@ -1,0 +1,78 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using WebAnime.Models.ViewModel;
+@using X.PagedList.Mvc.Core;
+@model X.PagedList.IPagedList<TbAnime>
+@{
+    ViewData["Title"] = "TimKiem";
+    Layout = "~/Views/Shared/_LayoutWebAnime.cshtml";
+}
+
+<div class="live__product">
+    <div class="row">
+        <div class="col-lg-8 col-md-8 col-sm-8">
+            <div class="section-title">
+                <h4>Từ Khóa: @ViewBag.Search</h4>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            QlAnimeContext db = new QlAnimeContext();
+            var maxTap = db.TbTapPhims
+                    .Where(tp => tp.MaAnime == item.MaAnime)
+                    .Max(tp => tp.Tap);
+            var TongComment = db.TbTapPhims
+                    .Where(tp => tp.MaAnime == item.MaAnime)
+                    .Sum(tp => tp.Comments);
+            var TongView = db.TbTapPhims
+                    .Where(tp => tp.MaAnime == item.MaAnime)
+                    .Sum(tp => tp.Views);
+            var bv = db.TbAnimes.Find(item.MaAnime);
+            <div class="col-lg-4 col-md-6 col-sm-6">
+                <div class="product__item">
+                    <div class="product__item__pic set-bg" data-setbg="@Url.Content("../Layout/img/anime/"+item.Anh)">
+                        <div class="ep">
+                            @if (maxTap.HasValue)
+                            {
+                                @maxTap
+                            }
+                            else
+                            {
+                                <span>??</span>
+                            }/@if (item.TongSoTap.HasValue)
+                            {
+                                @item.TongSoTap
+                            }
+                            else
+                            {
+                                <span>??</span>
+                            }
+                        </div>
+                        @if (bv.Lp.HasValue && bv.Lp.Value)
+                        {
+                            <div class="vip-img" style="position: absolute; top: 0; right: 0; width: 15%; transform: translate(-100%, 0);">
+                                <img src="../Layout/img/vip.jfif" alt="VIP">
+                            </div>
+
+                        }
+                        <div class="comment"><i class="fa fa-comments"></i> @TongComment</div>
+                        <div class="view"><i class="fa fa-eye"></i> @TongView</div>
+                    </div>
+                    <div class="product__item__text">
+                        <h5><a asp-action="ChiTietAnime" asp-controller="Home" asp-route-ma="@item.MaAnime">@item.Anime</a></h5>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@Html.PagedListPager(Model,page=>Url.Action("TimKiem",new {page=page,search=ViewBag.Search}),new
+    X.PagedList.Web.Common.PagedListRenderOptions(){
+        LiElementClasses = new List<String> {"page-item"},
+        PageClasses = new List<String> {"page-link"}
+    }
+)
+
+

@@ -1,0 +1,45 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using WebAnime.Models;
+@using X.PagedList.Mvc.Core;
+@model X.PagedList.IPagedList<TbHangPhim>
+
+@{
+    ViewData["Title"] = "HPAnime";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h1>HPAnime</h1>
+<p style="color:red">@TempData["Message"]</p>
+<p>
+    <a asp-action="CreateHPAnime" asp-controller="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Hãng phim
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TenHangPhim)
+                </td>
+                <td>
+                    <a asp-controller="edit" asp-action="editHPAnime" asp-route-ma="@item.MaHp">Edit</a> |
+                    <a asp-action="deleteHPAnime" asp-controller="delete" asp-route-ma="@item.MaHp">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@Html.PagedListPager(Model,page=>Url.Action("HPAnime",new {page=page}),new
+    X.PagedList.Web.Common.PagedListRenderOptions(){
+        LiElementClasses = new List<String> {"page-item"},
+        PageClasses = new List<String> {"page-link"}
+    }
+)

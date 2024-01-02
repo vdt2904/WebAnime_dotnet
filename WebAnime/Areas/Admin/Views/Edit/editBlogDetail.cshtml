@@ -1,0 +1,49 @@
+﻿@model WebAnime.Models.TbOurBlog
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "editBlogDetail";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h1>editBlogDetail</h1>
+
+<h4>TbOurBlog</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post" asp-action="editBlogDetail" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Idblog" />
+            <input type="hidden" asp-for="Anh" />
+            <div class="form-group">
+                <label asp-for="TenBlog" class="control-label"></label>
+                <input asp-for="TenBlog" class="form-control" />
+                <span asp-validation-for="TenBlog" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Chọn ảnh</label>
+                <div class="form-group">
+                    <input type="file" id="file" name="file" accept="image/*" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="ThongTin" class="control-label"></label>
+                <input asp-for="ThongTin" class="form-control" />
+                <span asp-validation-for="ThongTin" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NgayDang" class="control-label"></label>
+                <input asp-for="NgayDang" class="form-control" />
+                <span asp-validation-for="NgayDang" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

@@ -1,0 +1,106 @@
+﻿@model TbNguoiDung
+@{
+    ViewData["Title"] = "ThanhToan";
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+}
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+<style>
+    .vertical {
+        border: none;
+        border-left: 1px solid black;
+        height: 100px;
+        transform: rotate(90deg);
+    }
+
+</style>
+@{
+    QlAnimeContext db = new QlAnimeContext();
+    var a = db.TbVips.ToList();
+}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript">
+    function getpay(option){
+        $.ajax({
+            url: 'http://localhost:5153/api/topview/paymentinfo?option=' + option,
+            method: 'GET',
+            contentType: 'json',
+            dataType: 'json',
+            error: function (response) {
+                console.log("error");
+            },
+            success: function (response) {
+                
+                $('#idv').val(response.loaiVip);
+                $('#idtg').val(response.thoiGianSd + ' Tháng');
+                $('#idg').val(response.gia + ' đ');
+                var lvInput = $('#idv');
+                var lvHidden = $('[name="lv"]');
+                lvHidden.val(lvInput.val());
+            },
+            fail: function (response) {
+                console.log("fail");
+            }
+        })
+    }
+    $(document).ready(function () {
+        // Lấy thông tin thanh toán của loại VIP đầu tiên
+        getpay($("input[name='vipType']:checked").val());
+
+        // Gán sự kiện click cho các radio button chọn loại VIP
+        $("input[name='vipType']").click(function () {
+            var option = $(this).val();
+            getpay(option);
+        });
+        var lvInput = $('#idv');
+        var lvHidden = $('[name="lv"]');
+        lvHidden.val(lvInput.val());
+        
+    });
+</script>
+<section class="login spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6" style="text-align: center;">
+                <p style="color: red;">Chọn Loại</p>
+                <br>
+                @foreach (var i in a)
+                {
+                    <input type="radio" name="vipType" value="@i.LoaiVip" id="id+@i.LoaiVip" @if(i == a.First()) {<text>checked</text>}>
+                    <label for="option1" style="color:azure;">@i.ThoiGianSd tháng</label>
+                    <input type="hidden" id="idg+@i.LoaiVip" value="@i.Gia" />
+                    <br>
+                }
+            </div>
+            <div class="col-lg-4">
+                <p style="color: red;">Thông tin thanh toán</p>
+                    <div class="form-group d-flex align-items-center" style="">
+                        <label class="control-label w-25" style="color:azure;margin-right: 10px;">Tài khoản: </label>
+                        <input class="form-control w-75" id="idem" value="@Model.Email" readonly />
+                    </div>
+                    <div class="form-group d-flex align-items-center" style="">
+                        <label class="control-label w-25" style="color:azure;margin-right: 10px;">Tên gói: </label>
+                        <input class="form-control w-75" id="idv" readonly />
+                    </div>
+                    <div class="form-group d-flex align-items-center" style="">
+                        <label class="control-label w-25" style="color:azure;margin-right: 10px;">Thời hạn gói: </label>
+                        <input class="form-control w-75" id="idtg" readonly />
+                    </div>
+                    <div class="form-group d-flex align-items-center" style="">
+                        <label class="control-label w-25" style="color:azure;margin-right: 10px;">Giá gói: </label>
+                        <input class="form-control w-75" id="idg" readonly />
+                    </div>
+                    @using (Html.BeginForm("ThanhToanP", "ThanhToan", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.Hidden("em", Model.Email)
+                        @Html.Hidden("lv", new { id = "lv" })
+                        <button type="submit" class="form-control">Thanh Toán</button>
+                    }
+                
+                
+            </div>
+        </div>
+
+    </div>
+</section>
+

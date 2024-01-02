@@ -1,0 +1,34 @@
+﻿@model WebAnime.Models.TbTlanime
+
+@{
+    ViewData["Title"] = "CreateAnimeTL";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+<h1>CreateAnimeTL</h1>
+
+<h4>TbTlanime</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post" asp-action="CreateAnimeTL">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="MaTl" class="control-label"></label>
+                <select asp-for="MaTl" class ="form-control" asp-items="ViewBag.MaTl"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="MaAnime" class="control-label"></label>
+                <select asp-for="MaAnime" class ="form-control" asp-items="ViewBag.MaAnime"></select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

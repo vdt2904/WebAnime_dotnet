@@ -1,0 +1,56 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using WebAnime.Models;
+@using X.PagedList.Mvc.Core;
+@model X.PagedList.IPagedList<TbVip>
+@{
+    ViewData["Title"] = "LoaiVip";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h1>LoaiVip</h1>
+
+<p>
+    <a asp-action="CreateLoaiVip" asp-controller="create">Tạo mới</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Loại Vip
+            </th>
+            <th>
+                Thời gian sử dụng(Tháng)
+            </th>
+            <th>
+                Giá
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LoaiVip)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ThoiGianSd)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Gia)
+                </td>
+                <td>
+                    <a asp-action="editLoaiVip" asp-controller="edit" asp-route-ma="@item.LoaiVip">Edit</a> |
+                    <a asp-action="deleteLoaiVip" asp-controller="delete" asp-route-ma="@item.LoaiVip">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@Html.PagedListPager(Model,page=>Url.Action("LoaiVip",new {page=page}),new
+    X.PagedList.Web.Common.PagedListRenderOptions(){
+        LiElementClasses = new List<String> {"page-item"},
+        PageClasses = new List<String> {"page-link"}
+    }
+)
